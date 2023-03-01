@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreatePessoaRequest;
+use App\Http\Requests\UpdatePessoaRequest;
 use Illuminate\Http\Request;
 use App\Models\Pessoa;
-use App\Models\Telefone;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Validation\Rule;
 
 class PessoaController extends Controller
@@ -30,17 +30,8 @@ class PessoaController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CreatePessoaRequest $request)
     {
-
-        $request->validate([
-            'nome' => ['required', 'string', 'max:255'],
-            'cpf' => ['required', 'string', 'max:14', Rule::unique("pessoas","cpf")],
-            'email' => ['required', 'string', 'max:255', Rule::unique("pessoas","email")],
-            'data_nasc' => ['required', 'string', 'date'],
-            'nacionalidade' => ['required', 'string'],
-            'telefones.*' => ['required', 'string'],
-        ]);
 
         $pessoa = Pessoa::create($request->only([
             'nome',
@@ -55,15 +46,6 @@ class PessoaController extends Controller
                 $pessoa->telefones()->create(['numero' => $numero]);
             }
         }
-
-        // if($pessoa){
-        //     event(new Registered($pessoa));
-        //     return response()->json(["request" => true, "error" => ""],200);
-        // } else{
-        //     return response()->json(["request" => false, "error" => "not possible"],200);
-        // }
-
-
 
         return response()->json($pessoa);
     }
@@ -88,17 +70,8 @@ class PessoaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(UpdatePessoaRequest $request, $id)
     {
-
-        $request->validate([
-            'nome' => ['required', 'string', 'max:255'],
-            'cpf' => ['required', 'string', 'max:14', 'min:14', Rule::unique("pessoas","cpf")->ignore($id)],
-            'email' => ['required', 'string', 'max:255', Rule::unique("pessoas","email")->ignore($id)],
-            'data_nasc' => ['required', 'string', 'date'],
-            'nacionalidade' => ['required', 'string'],
-            'telefones.*' => ['required', 'string', 'regex:/^[0-9]{2}\s[0-9]{4,5}-[0-9]{4}$/'],
-        ]);
 
         $pessoa = Pessoa::findOrFail($id);
 
